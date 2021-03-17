@@ -10,10 +10,16 @@ from io import BytesIO
 from selenium.common.exceptions import NoSuchElementException  
 from selenium.webdriver.common.keys import Keys
 
-class ScreenAnalysis:
+STAGING_URL = 'https://uat.lexus.com.au/contact/request-a-test-drive'
+PRODUCTION_URL = 'https://www.lexus.com.au/contact/request-a-brochure'
+CHROME_PATH = '/Users/dineshpandiyan/Downloads/chromedriver'
+IMAGE_SAVE = '/Users/dineshpandiyan/Desktop/Defects/screenshots/'
+STAGING_PNG =  '/Users/dineshpandiyan/Desktop/Defects/screenshots/screen_staging.png'
+PROD_PNG =  '/Users/dineshpandiyan/Desktop/Defects/screenshots/screen_production.png'
+RESULT_IMG = '/Users/dineshpandiyan/Desktop/Defects/screenshots/result.png'
 
-    STAGING_URL = 'STAGING URL'
-    PRODUCTION_URL = 'PROD URL'
+class ScreenAnalysis:    
+
     driver = None
 
     def __init__(self):
@@ -26,14 +32,14 @@ class ScreenAnalysis:
         options = Options()
         options.add_argument('--headless')
         options.add_argument('--disable-gpu')
-        self.driver = webdriver.Chrome(executable_path='PATH TO CHROME DRIVER',chrome_options=options)
+        self.driver = webdriver.Chrome(executable_path=CHROME_PATH,chrome_options=options)
 
     def clean_up(self):
         self.driver.close()
 
     def capture_screens(self):
-        self.screenshot(self.STAGING_URL, 'screen_staging.png')
-        self.screenshot(self.PRODUCTION_URL, 'screen_production.png')
+        self.screenshot(STAGING_URL, 'screen_staging.png')
+        self.screenshot(PRODUCTION_URL, 'screen_production.png')
 
     def screenshot(self, url, file_name):
         print("Capturing", url, "screenshot as", file_name, "...")
@@ -42,11 +48,23 @@ class ScreenAnalysis:
         height, width = self.scroll_down(self.driver)
         time.sleep(10)
         self.driver.set_window_size(width, height)
+        #self.driver.save_screenshot("/Users/dineshpandiyan/Desktop/Defects/screenshots/"+file_name)
+        #self.driver.get_screenshot_as_png()
+        #print ("Done.")
+        #element1 = "//div[contains(@class,'css-16pqwjk-indicatorContainer react-select__indicator react-select__clear-indicator')]//*[contains(@class,'css-19bqh2r')]"
+        #element2 = "//input[@id='react-select-6-input']"
+
+        #if self.check_exists_by_xpath(element1): 
+        #    self.driver.find_element_by_xpath(element1).click()
+
+        #self.driver.find_element_by_xpath(element2).send_keys("3128")
+        #time.sleep(2)
+        #self.driver.find_element_by_xpath(element2).send_keys(Keys.ENTER)
 
         img_binary = self.driver.get_screenshot_as_png()
         img = Image.open(BytesIO(img_binary))
-        img.save("PATH TO SAVE IMAGE"+file_name)
-        
+        img.save(IMAGE_SAVE+file_name)
+        # print(file_name)
         print(" screenshot saved ")
     
     def scroll_down(self, driver):
@@ -96,8 +114,8 @@ class ScreenAnalysis:
         return (total_height, total_width)
 
     def analyze(self):
-        screenshot_staging = Image.open("PATH TO STAGING IMAGE")
-        screenshot_production = Image.open("PATH TO PROD IMAGE")
+        screenshot_staging = Image.open(STAGING_PNG)
+        screenshot_production = Image.open(PROD_PNG)
         columns = 60
         rows = 80
         screen_width, screen_height = screenshot_staging.size
@@ -114,7 +132,7 @@ class ScreenAnalysis:
                     draw = ImageDraw.Draw(screenshot_staging)
                     draw.rectangle((x, y, x+block_width, y+block_height), outline = "red")
 
-        screenshot_staging.save("PATH TO RESULT IMAGE")
+        screenshot_staging.save(RESULT_IMG)
 
     def process_region(self, image, x, y, width, height):
         region_total = 0
